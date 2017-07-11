@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
 import datetime
@@ -18,7 +18,7 @@ print('Loading dataset ...')
 with open(filename, 'rb') as features:
     database = features.readlines()
     for line in database:  # each line
-        f_info = line.split()  # find fields
+        f_info = line.decode().split()  # find fields
         if ('M' == f_info[2][0] or 'D' == f_info[2][0] or 'T' == f_info[2][
             0]):  # choose only M D T sensors, avoiding unexpected errors
             if not ('.' in str(np.array(f_info[0])) + str(np.array(f_info[1]))):
