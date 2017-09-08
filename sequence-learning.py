@@ -117,7 +117,7 @@ def seq_lengths(labels):
     return lengths
 
 print('Creating folds ...')
-kf = SequenceKFold(seq_lengths(Y),20)
+kf = SequenceKFold(seq_lengths(Y),2)
 for tuple in kf:
     train_index = tuple[0]
     train_len = tuple[1]
@@ -133,9 +133,13 @@ for tuple in kf:
     for idx in test_index:
         X_test.append(X[idx])
         Y_test.append(Y[idx])
-    X_train = np.array(X_train).reshape(-1,1)
+    #X_train = np.array(X_train).reshape(-1,1)
+    X_tr = np.array(X_train)
+    X_train =(((X_tr[:, None] & (1 << np.arange(8)))) > 0).astype(int) #vector-> binary matrix
     Y_train = np.array(Y_train)
-    X_test = np.array(X_test).reshape(-1,1)
+    #X_test = np.array(X_test).reshape(-1,1)
+    X_te = np.array(X_test)
+    X_test = (((X_te[:, None] & (1 << np.arange(8)))) > 0).astype(int)
     Y_test = np.array(Y_test)
     clf = MultinomialHMM()
     clf.fit(X_train,Y_train,train_len)
@@ -148,3 +152,5 @@ for tuple in kf:
     print(Y_pred)
     print('Confusion matrix:')
     print(confusion_matrix(Y_test,Y_pred))
+    print('Accuracy')
+    print(clf.score(X_test,Y_test,test_len))
