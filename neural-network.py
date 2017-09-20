@@ -8,6 +8,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
+from sklearn.utils import compute_class_weight
 from sklearn.metrics import confusion_matrix
 
 filename = "./dataset/data"  # 15 Milan dataset   http://ailab.wsu.edu/casas/datasets/
@@ -121,7 +122,7 @@ for i, n in enumerate(Y):
         else:
             if seq != n:
                 # if seq != 0:
-                if np.random.rand() < 0.25:  # 25% train, 75% test
+                if np.random.rand() < 0.75:  # 25% train, 75% test
                     X_train.append(X[a:a+count])
                     Y_train.append(seq)
                 else:
@@ -133,7 +134,7 @@ for i, n in enumerate(Y):
                 count = 1
                 a = i
     if i == (len(Y) - 1):
-        if np.random.rand() < 0.25:
+        if np.random.rand() < 0.75:
             X_train.append(X[a:a + count])
             Y_train.append(seq)
         else:
@@ -145,7 +146,7 @@ for i, n in enumerate(Y):
 # print(Y_train)
 # print(X_test)
 # print(Y_test)
-
+class_weight = compute_class_weight('balanced', np.unique(Y), Y)
 # same lenght for all sequences
 X_train = sequence.pad_sequences(X_train, maxlen=max_lenght)
 X_test = sequence.pad_sequences(X_test, maxlen=max_lenght)
@@ -161,9 +162,8 @@ model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=
 print(model.summary())
 
 # train the model
-model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=3, batch_size=64)
+model.fit(X_train, Y_train, validation_split=0.25, class_weight=class_weight, epochs=5, batch_size=64)
 
 # evaluate the model
 scores = model.evaluate(X_test, Y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
-print('Accuracy')
